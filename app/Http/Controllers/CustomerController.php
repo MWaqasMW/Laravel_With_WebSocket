@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer; // Corrected model name
 use Illuminate\Http\Request;
 use App\Events\NewCustomerEvent;
+use App\Events\DeletCustomer;
 
 class CustomerController extends Controller // Updated class name
 {
@@ -26,5 +27,15 @@ class CustomerController extends Controller // Updated class name
         $customers = Customer::all();
 
         return response()->json($customers, 200);
+    }
+    public function destroy($id)
+    {
+        $customer = Customer::findOrFail($id);
+
+        broadcast(new DeletCustomer($customer->id))->toOthers();
+
+        $customer->delete();
+
+        return response()->json(['message' => 'Customer deleted successfully'], 200);
     }
 }
